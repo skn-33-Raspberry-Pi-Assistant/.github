@@ -1,8 +1,8 @@
 # Raspberry Pi Assistant
 
-> Raspberry Pi 공식 문서 기반 제품 추천·비교 및 사용 지원 RAG
+> Raspberry Pi 공식 문서 기반 RAG 챗봇과 sLLM 추천 조건 추출
 
-**Raspberry Pi 사용자와 교육 담당자가 프로젝트 목적에 맞는 모델을 선택하고 설치·설정·문제 해결 방법을 판단할 수 있도록, 라이선스가 확인된 공식 문서를 검색하여 비교 근거와 출처가 포함된 답변을 제공하는 RAG 서비스입니다.**
+**Raspberry Pi 사용자와 교육 담당자의 질문에서 파인튜닝한 sLLM이 제품·환경 조건을 구조화하고, RAG 챗봇이 라이선스가 확인된 공식 문서를 검색하여 답변·추천 근거·출처를 제공하는 서비스입니다.**
 
 > [!IMPORTANT]
 > 이 프로젝트는 교육 목적으로 제작하는 비공식 프로젝트이며 Raspberry Pi Ltd의 공식 서비스, 제휴 서비스 또는 보증을 받은 서비스가 아닙니다.
@@ -12,22 +12,22 @@
 | 구분 | 내용 |
 |---|---|
 | 핵심 사용자 | Raspberry Pi 입문자·프로젝트 제작자·교육 담당자 |
-| 지원하는 판단 | 목적에 맞는 제품 선택, 제품 비교, 설치·설정, 문제 해결 |
+| 지원하는 판단 | 공식 문서 질의응답, 요구조건 구조화, 제품 후보 판단, 설치·설정 |
 | 핵심 근거 | 출처·작성 주체·라이선스·버전을 확인한 Raspberry Pi 공식 온라인 문서 |
-| 제공 결과 | 추천·비교표·사용 절차·문제 해결 단계·근거 문서·원문 링크 |
-| 핵심 원칙 | 검색된 공식 문서로 확인할 수 있는 내용만 답하고, 근거가 부족하면 답변을 보류 |
+| 제공 결과 | 조건 JSON, 근거 기반 답변·제품 후보·출처·답변 보류, Base–LoRA 비교 결과 |
+| 핵심 원칙 | 사실 지식은 RAG가 담당하고 sLLM은 조건 구조화만 담당 |
 
-일반 LLM의 기억에만 의존하면 제품·운영체제·설정 버전이 섞이거나 출처를 확인하기 어렵습니다. 이 프로젝트는 질문과 관련된 공식 문서를 먼저 검색하고, 검색 결과에 근거해 답변과 인용을 생성합니다.
+일반 LLM의 기억에만 의존하면 제품·운영체제·설정 버전이 섞이거나 출처를 확인하기 어렵습니다. 이 프로젝트는 sLLM이 사용자 질문을 검색 조건으로 변환하고, RAG가 관련 공식 문서를 검색한 뒤 검색 결과에 근거해 답변과 인용을 생성합니다. 파인튜닝 모델에 공식 문서 지식을 암기시키거나 출처를 생성하게 하지 않습니다.
 
 ## 답변 범위
 
 ### 답변하는 질문
 
-- 프로젝트 목적에 적합한 Raspberry Pi 제품 후보와 선택 근거
-- Raspberry Pi 제품 2~3개의 공식 사양 및 용도 비교
+- 프로젝트 목적과 사용자 조건에 적합한 Raspberry Pi 제품 후보
+- 제품·OS·작업·성능·연결 조건의 구조화 결과
 - Raspberry Pi OS 설치와 초기 설정
 - 네트워크, SSH·원격 접속, 카메라 및 기본 GPIO 사용법
-- 부팅·네트워크·카메라 문제의 단계별 점검 방법
+- 검색된 공식 문서에 근거한 기본 문제 해결 답변
 
 ### 답변하지 않거나 보류하는 질문
 
@@ -37,78 +37,96 @@
 - 비공식 오버클럭·개조·우회 방법
 - 출처가 없거나 현재 문서 버전과 맞지 않는 질문
 
+### 1차 프로젝트에서 제외하는 기능
+
+- 전용 제품 비교 대시보드와 복잡한 추천 점수 UI
+- 이미지·영상 연동 및 사용자 이미지 분석
+- 여러 단계의 상태형 문제 해결 플로우
+- 회원·대화 이력·개인화 기능
+- Django 프런트엔드와 AWS 배포
+
 ## 개발 범위
 
-### 1차 프로젝트 — Streamlit RAG
+### 1차 프로젝트 — RAG 챗봇 + sLLM 파인튜닝
 
-1차 프로젝트만으로 설치·실행·평가가 가능한 완제품을 목표로 합니다.
+1차 프로젝트만으로 설치·실행·평가가 가능한 Streamlit 완제품을 목표로 합니다.
 
-- 제품 5종 내외의 목적 기반 추천
-- 제품 2~3개 비교표
-- 공식 온라인 문서 30~50개 수집·정제·색인
+#### 트랙 A. 공식 문서 RAG 챗봇
+
+- 공식 온라인 문서 30~50개 수집·정제·청킹·색인
 - Dense Retrieval 기반 Top-k 검색
-- 사용법 및 문제 해결 Q&A
+- LangChain을 활용한 Retriever–LLM 연결
+- 제품 선택, 설치·설정 및 기본 문제 해결 Q&A
 - 답변별 문서 제목·섹션·원문 링크 표시
 - 근거 부족 시 답변 보류
 - 프롬프트 인젝션 및 비밀정보 노출 방지
-- Dev/Holdout을 포함한 평가 질문 50개
-- Streamlit 사용자 화면과 근거 문서 확인 기능
+- Dev/Holdout을 포함한 RAG 평가 질문 50개
+- Streamlit 채팅 화면과 근거 문서 확인 기능
 
-#### 1차 추가 구현 후보
+#### 트랙 B. sLLM QLoRA 파인튜닝
 
-- 요구조건을 점수화한 설명 가능한 제품 추천
-- 제품 모델·OS 버전 기반 metadata filter
-- 답변 단계와 연결된 라이선스 확인 이미지 표시
-- 부팅·네트워크·카메라의 간단한 단계형 진단
+- Base model: [Qwen/Qwen3-1.7B](https://huggingface.co/Qwen/Qwen3-1.7B)
+- Task: 사용자 질문에서 제품·OS·작업·성능·연결 조건을 고정 JSON으로 추출
+- Baseline: Qwen3-1.7B + Few-shot prompt
+- Experiment: 동일 모델 + [PEFT 4-bit QLoRA](https://huggingface.co/docs/peft/developer_guides/quantization) adapter
+- Dataset: 팀이 작성·검수한 질문–조건 JSON 학습 데이터 300~500건
+- Environment: [RunPod Pod](https://docs.runpod.io/pods/overview) 24GB급 단일 GPU와 재현 가능한 학습 설정
+- Evaluation: JSON 준수율, 필드별 F1, Exact Match, 추천 정확도, 응답 시간
+- Fallback: adapter 오류 또는 성능 저하 시 Few-shot 조건 추출기로 전환
 
-### 2차 프로젝트 — Django·AWS 확장
+파인튜닝 모델은 Raspberry Pi 문서 지식을 암기하거나 최종 답변·출처를 생성하지 않습니다. 추출한 JSON은 metadata filter와 최소 추천 규칙에만 사용하고, 제품 사실과 답변은 항상 RAG 검색 근거로 다시 확인합니다.
 
-- sLLM과 LoRA를 활용한 사용자 요구조건 구조화 실험
-- Django 기반 회원·환경 프로필·대화 이력 관리
-- 제품 비교 및 문제 해결에 특화된 반응형 UI
-- 영상 구간·오류 로그 등 멀티미디어 지원
-- 문서 버전·충돌·갱신 관리
-- AWS 기반 배포, 비밀정보 관리, 로그 및 모니터링
+### 2차 프로젝트 — Django·AWS 서비스화
 
-![1차 Streamlit 프로젝트와 2차 Django·AWS 확장 로드맵](./assets/raspberry-pi-rag-two-stage-roadmap.png)
+- Django 기반 회원·환경 프로필·대화 이력과 반응형 UI
+- 검증된 RAG·sLLM 서비스를 Django API 계층에서 재사용
+- AWS 기반 애플리케이션·데이터베이스·파일 저장소 배포
+- 비밀정보 관리, 로그, 모니터링 및 운영 안정성 강화
+
+![RAG 챗봇과 sLLM 파인튜닝 중심 개발 로드맵](./assets/raspberry-pi-assistant-core-roadmap.png)
 
 ## 주요 화면
 
 | 화면 | 주요 기능 |
 |---|---|
-| 홈 | 서비스 소개, 답변 범위와 사용 방법 안내 |
-| 제품 추천 | 용도·성능·연결 조건에 따른 제품 후보와 추천 근거 제공 |
-| 제품 비교 | 2~3개 제품의 핵심 사양·장단점·적합 용도 비교 |
-| 사용법 Q&A | 제품과 OS 환경에 맞는 공식 문서 기반 답변 |
-| 문제 해결 | 증상별 점검 순서와 관련 근거 문서 안내 |
-| 출처·문서 | 문서 출처, 수집일, 버전, 라이선스와 원문 확인 |
+| RAG 챗봇 | 질문, 조건 JSON, 근거 기반 답변과 출처 확인 |
+| Base–LoRA 비교 | 동일 질문에 대한 조건 추출 결과와 지표 비교 |
+| 문서·평가 | 문서 출처·라이선스·버전과 RAG/sLLM 평가 결과 확인 |
 
 ## 기준 아키텍처
 
 ```mermaid
 flowchart LR
-    subgraph INDEX[색인 단계]
+    subgraph INDEX[공식 문서 색인]
         A[공식 온라인 문서] --> B[파싱·정제]
         B --> C[청킹·메타데이터]
         C --> D[임베딩]
         D --> E[(Vector DB)]
     end
 
-    subgraph QUERY[질의 단계]
-        F[사용자 질문] --> G[제품·환경 조건 추출]
-        G --> H[Retriever]
-        E --> H
-        H --> I[Top-k 근거]
-        I --> J[LLM 답변 생성]
-        J --> K[답변·출처·보류]
+    subgraph TRAIN[sLLM 학습·검증]
+        T1[팀 작성·검수 데이터] --> T2[Train·Dev·Holdout 분리]
+        T2 --> T3[Base Few-shot]
+        T2 --> T4[RunPod QLoRA]
+        T4 --> T5[LoRA Adapter]
+        T3 --> T6[동일 Holdout 비교]
+        T5 --> T6
     end
 
-    subgraph EVAL[평가 단계]
-        L[고정 평가 질문] --> M[검색·답변·인용 평가]
-        M --> N[실패 사례 분석]
-        N --> O[한 가지 조건 변경]
-        O --> M
+    subgraph QUERY[챗봇 질의]
+        Q1[사용자 질문] --> Q2[Base 또는 LoRA 조건 추출]
+        T3 -.-> Q2
+        T5 -.-> Q2
+        Q2 --> Q3[JSON Schema 검증]
+        Q3 --> Q4[Metadata Filter]
+        E --> Q4
+        Q4 --> Q5[Retriever]
+        Q5 --> Q6[Top-k 공식 근거]
+        Q6 --> Q7[LLM 답변 생성]
+        Q7 --> Q8[답변·출처·보류]
     end
+
+    Q3 -. 실패 시 .-> Q9[Few-shot fallback 또는 확인 질문]
 ```
 
 ## 공식 문서 출처
@@ -158,6 +176,35 @@ flowchart LR
 | 추적 정보 | document_id, chunk_id, 원문 URL, 버전, 수집일, checksum, parser version |
 | 확인 결과 | 수집 후 파일 수·파싱 성공률·빈 페이지·청크 길이 분포·표본 대조 결과로 갱신 예정 |
 
+## Dataset Card 초안
+
+공식 문서 corpus와 QLoRA 학습 데이터는 서로 다른 데이터셋으로 관리합니다. 공식 문서 원문을 sLLM의 답변 데이터로 학습시키지 않습니다.
+
+| 항목 | 현재 계획 |
+|---|---|
+| 학습 Task | 한국어 사용자 질문을 고정된 추천 조건 JSON으로 변환 |
+| 데이터 출처 | 팀 작성 예시와 템플릿 기반 초안을 사람이 검수한 데이터 |
+| 데이터 규모 | Train 300~500건, Dev와 Holdout은 별도 구성 |
+| 주요 필드 | use_case, product_model, os_version, task, performance_priority, wireless_required, camera_required, gpio_required, user_level, needs_clarification |
+| 품질 검수 | JSON Schema 검증, 필드 라벨 검수, 중복·근접 중복 제거 |
+| 누수 방지 | 동일 템플릿·동일 의미 질문이 Train과 Holdout에 함께 들어가지 않게 분리 |
+| 개인정보 | 실제 사용자 기록을 사용하지 않으며 개인정보·비밀정보를 포함하지 않음 |
+| 라이선스 | 팀 작성 데이터의 공개·재사용 조건을 합의한 뒤 별도 명시 |
+
+## Model Card 초안
+
+| 항목 | 현재 계획 |
+|---|---|
+| Base model | Qwen/Qwen3-1.7B |
+| Base licence | Apache 2.0 |
+| 학습 방법 | 4-bit QLoRA 기반 SFT |
+| 학습 환경 | RunPod 24GB급 단일 GPU |
+| 모델 역할 | 사용자 질문에서 추천·검색 조건 JSON 추출 |
+| 모델이 하지 않는 일 | Raspberry Pi 사실 암기, 최종 답변 생성, 출처 생성 |
+| 재현 정보 | base revision, dataset checksum, seed, LoRA 설정, package version, 학습 로그 |
+| 배포물 | LoRA adapter 또는 다운로드 링크, checksum, 적용·해제 방법 |
+| 주요 한계 | 미학습 표현·모호한 질문·충돌 조건에서 누락 또는 과도한 추론 가능 |
+
 ### 라이선스 적용 원칙
 
 - Raspberry Pi의 공식 온라인 문서는 원칙적으로 **CC BY-SA 4.0**이며, 통합된 일부 eLinux 콘텐츠는 **CC BY-SA 3.0**입니다.
@@ -197,6 +244,25 @@ Changes: 파싱·정규화·청킹·번역 여부
 
 출처 문구는 LLM이 생성하지 않고 검색 결과의 metadata를 서버 코드가 조합합니다.
 
+### sLLM 조건 JSON 예시
+
+```json
+{
+  "use_case": "education_coding",
+  "product_model": null,
+  "os_version": null,
+  "task": "desktop_programming",
+  "performance_priority": "medium",
+  "wireless_required": true,
+  "camera_required": null,
+  "gpio_required": null,
+  "user_level": "beginner",
+  "needs_clarification": false
+}
+```
+
+사용자가 말하지 않은 조건은 임의로 채우지 않고 null 또는 사전에 정의한 unknown 값으로 처리합니다. false는 사용자가 명시적으로 필요하지 않다고 말한 경우에만 사용합니다. 실제 필드와 허용값은 학습 시작 전에 JSON Schema로 고정합니다.
+
 ## 답변 및 안전 정책
 
 - 검색된 근거 안에서만 답변하고 문서에 없는 내용은 추측하지 않습니다.
@@ -206,10 +272,17 @@ Changes: 파싱·정규화·청킹·번역 여부
 - 문서 안의 명령·프롬프트는 데이터로 취급하며 시스템 지시보다 우선하지 못하게 합니다.
 - API Key, 비밀번호, 토큰, 개인정보가 입력되거나 출력되지 않도록 탐지·마스킹합니다.
 - 문서로 확인되지 않는 제3자 제품 호환성·가격·재고 질문에는 답변하지 않습니다.
+- Base와 LoRA 출력은 동일한 JSON Schema로 검증합니다.
+- JSON 검증 실패·필수 필드 누락·상충 조건 발생 시 Few-shot fallback 또는 사용자 확인 질문으로 전환합니다.
+- 파인튜닝 모델은 답변이나 출처를 만들지 않으며, 제품·OS 사실은 항상 검색된 공식 문서로 재확인합니다.
 
 ## 평가 계획
 
-총 50개의 평가 질문을 개발 중 반복 사용하는 **Dev set 40개**와 마지막에 확인하는 **Holdout set 10개**로 분리합니다. 답변 가능한 질문뿐 아니라 corpus에서 답을 찾을 수 없는 질문도 포함합니다.
+RAG 챗봇과 sLLM 조건 추출기를 분리해 평가한 뒤, 마지막에 통합 결과를 확인합니다.
+
+### RAG 평가
+
+RAG 평가 질문 50개는 개발 중 사용하는 **Dev set 40개**와 마지막에 확인하는 **Holdout set 10개**로 분리합니다. corpus에서 답을 찾을 수 없는 질문도 포함합니다.
 
 | 평가 대상 | 지표 | 확인 내용 |
 |---|---|---|
@@ -217,16 +290,28 @@ Changes: 파싱·정규화·청킹·번역 여부
 | 답변 | Faithfulness, Answer Relevancy | 답변이 근거에 충실하고 질문에 적절한가 |
 | 인용 | Citation Precision | 표시된 출처가 실제 주장을 뒷받침하는가 |
 | 거절 | 보류 정확도 | 근거가 없거나 범위 밖일 때 추측하지 않는가 |
-| 추천 | 조건 충족률, 추천 정확도 | 사용자 요구조건이 후보 선정과 설명에 반영되는가 |
 | 운영 | 응답 시간, 오류율 | Streamlit에서 안정적으로 사용할 수 있는가 |
 
-한 실험에서는 한 가지 조건만 변경하고 동일한 Dev set으로 비교합니다.
+### sLLM 평가
 
-| 실험 | 변경 조건 | 검색 지표 | 답변 지표 | 응답 시간 | 해석 |
-|---|---|---:|---:|---:|---|
-| Baseline | 기본 설정 |  |  |  |  |
-| Experiment 1 | 한 가지 조건 변경 |  |  |  |  |
-| Final | 최종 설정 |  |  |  |  |
+| 평가 대상 | 지표 | 확인 내용 |
+|---|---|---|
+| 형식 | JSON Schema 준수율 | 출력이 파싱 가능하고 허용값을 지키는가 |
+| 필드 | 필드별 Macro F1 | 각 추천·검색 조건을 정확히 추출하는가 |
+| 전체 | Exact Match | 모든 필드가 정답과 일치하는가 |
+| 안전 | 미제공 조건 추측률 | 사용자가 말하지 않은 조건을 만들지 않는가 |
+| 영향 | 추천·검색 성공률 | 추출 결과가 올바른 검색과 제품 후보로 이어지는가 |
+| 운영 | 추론 시간·fallback 비율 | 서비스 지연과 실패 복구가 허용 범위인가 |
+
+파인튜닝 효과를 비교할 때 base model, prompt, JSON Schema, 생성 설정과 평가셋을 고정하고 **LoRA adapter 적용 여부만 변경**합니다. 한 실험에서는 한 가지 조건만 변경합니다.
+
+| 실험 | 모델 | Adapter | JSON 준수율 | Macro F1 | Exact Match | 추천 정확도 | 응답 시간 |
+|---|---|---|---:|---:|---:|---:|---:|
+| Baseline | Qwen3-1.7B + Few-shot | 없음 |  |  |  |  |  |
+| QLoRA | Qwen3-1.7B + 동일 prompt | 적용 |  |  |  |  |  |
+| Final | 채택한 조건 추출기 + RAG |  |  |  |  |  |  |
+
+sLLM Train·Dev·Holdout과 RAG Dev·Holdout의 목적을 구분하고, 학습 데이터 또는 의미가 같은 변형 질문이 최종 평가셋에 들어가지 않도록 누수를 검사합니다.
 
 ## 권장 프로젝트 구조
 
@@ -236,29 +321,42 @@ app/
 src/
 ├── ingestion/        # 문서 로딩·정제·청킹
 ├── retrieval/        # 임베딩·Vector DB·Retriever
-├── recommendation/   # 제품 조건·점수·비교
+├── condition_extraction/
+│   ├── schema.py     # 조건 JSON Schema
+│   ├── baseline.py   # Base Few-shot 추출기
+│   └── lora.py       # LoRA adapter 추론
+├── recommendation/   # 최소 제품 후보 규칙
 ├── generation/       # Prompt·Chain·LLM
 ├── safety/           # 답변 보류·인젝션·비밀정보 방어
-├── evaluation/       # 평가 질문·지표·실험 비교
+├── evaluation/       # RAG·조건 추출 평가
 └── services/         # UI와 분리된 RAG 서비스 계층
 data/
-└── sample/           # 공개 가능한 샘플 문서와 manifest
+├── sample/           # 공개 가능한 샘플 문서와 manifest
+└── finetuning/
+    ├── train.jsonl
+    ├── dev.jsonl
+    └── holdout.jsonl
+training/
+├── train_qlora.py
+└── configs/
 docs/
-└── document-card.md
+├── document-card.md
+├── dataset-card.md
+└── model-card.md
 tests/
 .env.example
 requirements.txt
 README.md
 ```
 
-Streamlit 화면에 RAG 로직을 직접 작성하지 않고 src/services/를 통해 호출하여, 2차 프로젝트에서 동일한 엔진을 Django로 이전할 수 있게 구성합니다.
+Streamlit 화면에 RAG·sLLM 로직을 직접 작성하지 않고 src/services/를 통해 호출합니다. Base model 가중치는 Git에 올리지 않고 모델 ID와 revision을 기록하며, LoRA adapter는 저장소 크기 정책에 따라 Release 또는 모델 저장소 링크와 checksum으로 제공합니다.
 
 ## 설치 및 실행
 
 > [!NOTE]
 > 현재 페이지는 조직 소개용 README입니다. 실행 가능한 코드 저장소가 생성되면 실제 의존성 버전·환경변수·명령을 검증한 뒤 이 절과 프로젝트 저장소 README를 갱신합니다.
 
-예정된 실행 흐름은 다음과 같습니다.
+예정된 챗봇 실행 흐름은 다음과 같습니다.
 
 ```bash
 git clone <PROJECT_REPOSITORY_URL>
@@ -269,7 +367,22 @@ pip install -r requirements.txt
 streamlit run app/streamlit_app.py
 ```
 
-API Key, 개인정보, 원문 내부 문서는 Git에 커밋하지 않습니다. .env.example에는 변수 이름만 제공합니다.
+조건 추출기는 환경변수로 교체할 수 있게 구성합니다.
+
+```text
+CONDITION_EXTRACTOR=baseline  # 또는 lora
+LORA_ADAPTER_PATH=<LOCAL_OR_REMOTE_ADAPTER_PATH>
+```
+
+RunPod 학습은 별도 스크립트와 설정 파일로 재현합니다.
+
+```bash
+python training/train_qlora.py --config training/configs/qwen3_1_7b_qlora.yaml
+python -m src.evaluation.extractor_eval --mode baseline
+python -m src.evaluation.extractor_eval --mode lora
+```
+
+학습 데이터·모델 cache·checkpoint는 RunPod의 /workspace에 저장하고, 학습 후 adapter·설정·평가 결과를 외부에 백업합니다. API Key, Hugging Face token, 개인정보와 원문 내부 문서는 Git에 커밋하지 않습니다. .env.example에는 변수 이름만 제공합니다.
 
 ## 역할 분담
 
@@ -286,14 +399,18 @@ API Key, 개인정보, 원문 내부 문서는 Git에 커밋하지 않습니다.
 - 기능 단위 브랜치와 작은 커밋을 사용합니다.
 - Pull Request에 변경 이유, 영향 범위와 검증 결과를 기록합니다.
 - 데이터·프롬프트·검색 설정 변경에는 동일 평가셋 결과를 첨부합니다.
-- API Key, 개인정보, 접근 제한 문서와 재배포할 수 없는 원문은 저장소에 올리지 않습니다.
+- API Key, 개인정보, 접근 제한 문서, base model 가중치와 재배포할 수 없는 원문은 저장소에 올리지 않습니다.
 
 ## 필수 결과물
 
 - 실행 가능한 GitHub 코드 저장소와 의존성 파일
 - 설치·실행·구조·기술 선택 이유가 포함된 README
 - 출처·라이선스·수집 규모·정제·청킹 방법을 기록한 Document Card
-- Dev/Holdout 질문, 정답 근거, Baseline·개선 결과와 실패 분석
+- 질문–조건 JSON의 생성·검수·분리 과정을 기록한 Dataset Card
+- base model·QLoRA 설정·한계·재현 정보를 기록한 Model Card
+- LoRA adapter 또는 다운로드 링크, checksum, 학습 설정과 seed
+- RAG Dev/Holdout 질문, 정답 근거, Baseline·개선 결과와 실패 분석
+- 동일 Holdout으로 측정한 Base–LoRA 조건 추출 비교표
 - 질문·답변·출처 확인이 가능한 Streamlit 서비스
 - 비즈니스 가치, 데모, 평가 결과, 한계와 다음 단계를 포함한 발표 자료
 
@@ -301,8 +418,9 @@ API Key, 개인정보, 원문 내부 문서는 Git에 커밋하지 않습니다.
 
 - 공식 문서만으로 확인할 수 없는 제3자 액세서리 호환성은 지원하지 않습니다.
 - 실시간 가격·재고는 변동성과 출처 관리 문제로 1차 범위에서 제외합니다.
-- 표·이미지·영상은 라이선스와 파싱 품질을 확인한 자산부터 단계적으로 추가합니다.
-- 1차 평가로 RAG 품질을 확인한 뒤 sLLM 파인튜닝, Django UI와 AWS 배포를 별도 프로젝트에서 진행합니다.
+- QLoRA 조건 추출기는 학습하지 않은 표현이나 모호한 질문에서 필드를 누락하거나 과도하게 추론할 수 있으므로 JSON 검증과 fallback이 필요합니다.
+- 1차에서 RAG 챗봇과 sLLM QLoRA를 함께 검증하고, 2차에서 검증된 엔진을 Django UI와 AWS 운영 환경으로 이전합니다.
+- 이미지·영상·복잡한 단계형 진단은 핵심 챗봇과 파인튜닝 성능이 확인된 이후에만 선택적으로 검토합니다.
 
 ---
 
