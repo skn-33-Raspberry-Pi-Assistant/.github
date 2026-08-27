@@ -378,10 +378,19 @@ python -m src.evaluation.extractor_eval --mode lora
 
 | 이름 | 역할 | 담당 업무 |
 |---|---|---|
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
+| 안정민 | PM·아키텍처·통합 | 일정·범위 관리, 인터페이스 정의, 최종 통합, 발표 |
+| 김혜리 | 문서·데이터 | 공식 문서 수집, 라이선스 검토, 정제·청킹, Document Card |
+| 최지흠 | RAG·검색 | multilingual-e5-base, Vector DB, Retriever, 검색 평가 |
+| 이양원 | sLLM·파인튜닝 | JSON Schema, 학습 데이터, Qwen3-1.7B QLoRA, 모델 평가 |
+| 김나은 | 챗봇·Streamlit | LangChain 생성 체인, 안전 정책, 출처 UI, 통합 테스트 |
+
+### 공통 업무
+
+- 팀원별로 평가 질문 10개를 작성하여 총 50개의 평가셋을 구성합니다.
+- 자신이 담당하지 않은 영역의 질문과 정답 근거를 교차 검수합니다.
+- 검색·답변·인용·보류·sLLM 평가 결과와 실패 사례를 함께 검토합니다.
+- 모듈 간 입력·출력 형식과 metadata schema를 공동으로 합의하고 변경 사항을 공유합니다.
+- 최종 Streamlit 서비스의 통합 테스트, README 검증과 발표 리허설에 전원이 참여합니다.
 
 ## Git 협업 규칙
 
