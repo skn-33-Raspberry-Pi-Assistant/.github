@@ -47,9 +47,9 @@
 
 ## 개발 범위
 
-### 1차 프로젝트 — RAG 챗봇 + sLLM 파인튜닝
+### RAG 챗봇 + sLLM 파인튜닝
 
-1차 프로젝트만으로 설치·실행·평가가 가능한 Streamlit 완제품을 목표로 합니다.
+설치·실행·평가가 가능한 Streamlit 완제품을 목표로 합니다.
 
 #### 트랙 A. 공식 문서 RAG 챗봇
 
@@ -75,13 +75,6 @@
 - Fallback: adapter 오류 또는 성능 저하 시 Few-shot 조건 추출기로 전환
 
 파인튜닝 모델은 Raspberry Pi 문서 지식을 암기하거나 최종 답변·출처를 생성하지 않습니다. 추출한 JSON은 metadata filter와 최소 추천 규칙에만 사용하고, 제품 사실과 답변은 항상 RAG 검색 근거로 다시 확인합니다.
-
-### 2차 프로젝트 — Django·AWS 서비스화
-
-- Django 기반 회원·환경 프로필·대화 이력과 반응형 UI
-- 검증된 RAG·sLLM 서비스를 Django API 계층에서 재사용
-- AWS 기반 애플리케이션·데이터베이스·파일 저장소 배포
-- 비밀정보 관리, 로그, 모니터링 및 운영 안정성 강화
 
 ![RAG 챗봇과 sLLM 파인튜닝 중심 개발 로드맵](./assets/raspberry-pi-assistant-core-roadmap.png)
 
@@ -400,19 +393,6 @@ python -m src.evaluation.extractor_eval --mode lora
 - Pull Request에 변경 이유, 영향 범위와 검증 결과를 기록합니다.
 - 데이터·프롬프트·검색 설정 변경에는 동일 평가셋 결과를 첨부합니다.
 - API Key, 개인정보, 접근 제한 문서, base model 가중치와 재배포할 수 없는 원문은 저장소에 올리지 않습니다.
-
-## 필수 결과물
-
-- 실행 가능한 GitHub 코드 저장소와 의존성 파일
-- 설치·실행·구조·기술 선택 이유가 포함된 README
-- 출처·라이선스·수집 규모·정제·청킹 방법을 기록한 Document Card
-- 질문–조건 JSON의 생성·검수·분리 과정을 기록한 Dataset Card
-- base model·QLoRA 설정·한계·재현 정보를 기록한 Model Card
-- LoRA adapter 또는 다운로드 링크, checksum, 학습 설정과 seed
-- RAG Dev/Holdout 질문, 정답 근거, Baseline·개선 결과와 실패 분석
-- 동일 Holdout으로 측정한 Base–LoRA 조건 추출 비교표
-- 질문·답변·출처 확인이 가능한 Streamlit 서비스
-- 비즈니스 가치, 데모, 평가 결과, 한계와 다음 단계를 포함한 발표 자료
 
 ## 한계와 향후 계획
 
