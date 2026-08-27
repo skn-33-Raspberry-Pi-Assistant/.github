@@ -76,8 +76,6 @@
 
 파인튜닝 모델은 Raspberry Pi 문서 지식을 암기하거나 최종 답변·출처를 생성하지 않습니다. 추출한 JSON은 metadata filter와 최소 추천 규칙에만 사용하고, 제품 사실과 답변은 항상 RAG 검색 근거로 다시 확인합니다.
 
-![RAG 챗봇과 sLLM 파인튜닝 중심 개발 로드맵](./assets/raspberry-pi-assistant-core-roadmap.png)
-
 ## 주요 화면
 
 | 화면 | 주요 기능 |
